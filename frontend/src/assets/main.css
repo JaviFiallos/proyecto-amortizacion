@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --primary: #1a3c5e;
+  --primary-light: #2575bc;
+  --primary-dark: #0f2540;
+  --accent: #38bdf8;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --bg: #f0f4f8;
+  --bg-card: #ffffff;
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --shadow: 0 4px 24px rgba(26, 60, 94, 0.10);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html, body, #app {
+  height: 100%;
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* Animaciones globales */
+.fade-enter-active, .fade-leave-active { transition: opacity 0.25s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+.slide-up-enter-active { transition: all 0.3s ease; }
+.slide-up-enter-from { opacity: 0; transform: translateY(20px); }
+
+/* Overrides de Element Plus */
+.el-table { border-radius: var(--radius); overflow: hidden; }
+.el-table th.el-table__cell { background: var(--primary) !important; color: #fff !important; font-weight: 600; }
+.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell { background: #f8fafc; }
+.el-button--primary { background: var(--primary-light) !important; border-color: var(--primary-light) !important; }
+.el-button--primary:hover { background: var(--primary) !important; border-color: var(--primary) !important; }
+.el-card { border-radius: var(--radius) !important; box-shadow: var(--shadow) !important; border: 1px solid var(--border) !important; }
+.el-tag { border-radius: 20px !important; }
+
+/* Cards con gradiente en header */
+.page-header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+.page-header h2 { font-size: 1.6rem; font-weight: 700; margin: 0; }
+.page-header p { font-size: 0.95rem; opacity: 0.85; margin-top: 4px; }
+
+/* Stats cards */
+.stat-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: var(--transition);
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(26,60,94,0.15); }
+.stat-value { font-size: 1.8rem; font-weight: 800; color: var(--primary); margin: 4px 0; }
+.stat-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* Tabla de amortización personalizada */
+.amort-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.amort-table th { background: var(--primary); color: #fff; padding: 10px 12px; text-align: right; font-weight: 600; }
+.amort-table th:first-child { text-align: center; }
+.amort-table td { padding: 9px 12px; text-align: right; border-bottom: 1px solid var(--border); }
+.amort-table td:first-child { text-align: center; font-weight: 600; }
+.amort-table tr:nth-child(even) td { background: #f8fafc; }
+.amort-table tr.total-row td { background: var(--primary-light) !important; color: #fff; font-weight: 700; }
