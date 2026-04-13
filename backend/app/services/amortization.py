@@ -10,12 +10,10 @@ def calcular_tabla_francesa(
     monto: float,
     tasa_anual: float,
     plazo_meses: int,
-    cobros_mensuales: float = 0.0,
-    cobros_fijos: float = 0.0,
+    cobros_activos: list,
 ) -> List[dict]:
     """
     Sistema Francés: cuota de capital + interés constante.
-    Fórmula: C = P * i / (1 - (1+i)^-n)
     """
     i = tasa_anual / 100 / 12  # tasa mensual
     n = plazo_meses
@@ -31,10 +29,27 @@ def calcular_tabla_francesa(
         interes = round(saldo * i, 4)
         capital = round(cuota_ki - interes, 4)
         if periodo == n:
-            # Ajuste de último periodo para evitar diferencias de redondeo
             capital = round(saldo, 4)
-        cobros = round(cobros_mensuales + (cobros_fijos if periodo == 1 else 0), 4)
-        cuota_total = round(capital + interes + cobros, 4)
+
+        # Calculo individual de cobros
+        cobros_dict = {}
+        for c in cobros_activos:
+            val = 0.0
+            if c.is_monthly:
+                if c.is_percentage:
+                    val = monto * c.value / 100 / 12
+                else:
+                    val = c.value
+            else:
+                if periodo == 1:
+                    if c.is_percentage:
+                        val = monto * c.value / 100
+                    else:
+                        val = c.value
+            cobros_dict[c.name] = round(val, 4)
+
+        total_cobros_mes = sum(cobros_dict.values())
+        cuota_total = round(capital + interes + total_cobros_mes, 4)
         saldo_final = round(saldo - capital, 4)
 
         tabla.append({
@@ -42,7 +57,7 @@ def calcular_tabla_francesa(
             "initial_balance": round(saldo, 4),
             "capital": capital,
             "interest": interes,
-            "indirect_charges": cobros,
+            "indirect_charges": cobros_dict,
             "total_payment": cuota_total,
             "final_balance": max(saldo_final, 0.0),
         })
@@ -55,11 +70,10 @@ def calcular_tabla_alemana(
     monto: float,
     tasa_anual: float,
     plazo_meses: int,
-    cobros_mensuales: float = 0.0,
-    cobros_fijos: float = 0.0,
+    cobros_activos: list,
 ) -> List[dict]:
     """
-    Sistema Alemán: capital constante en cada período, interés sobre saldo decreciente.
+    Sistema Alemán: capital constante en cada período.
     """
     i = tasa_anual / 100 / 12
     n = plazo_meses
@@ -73,8 +87,26 @@ def calcular_tabla_alemana(
         capital = capital_constante
         if periodo == n:
             capital = round(saldo, 4)
-        cobros = round(cobros_mensuales + (cobros_fijos if periodo == 1 else 0), 4)
-        cuota_total = round(capital + interes + cobros, 4)
+
+        # Calculo individual de cobros
+        cobros_dict = {}
+        for c in cobros_activos:
+            val = 0.0
+            if c.is_monthly:
+                if c.is_percentage:
+                    val = monto * c.value / 100 / 12
+                else:
+                    val = c.value
+            else:
+                if periodo == 1:
+                    if c.is_percentage:
+                        val = monto * c.value / 100
+                    else:
+                        val = c.value
+            cobros_dict[c.name] = round(val, 4)
+
+        total_cobros_mes = sum(cobros_dict.values())
+        cuota_total = round(capital + interes + total_cobros_mes, 4)
         saldo_final = round(saldo - capital, 4)
 
         tabla.append({
@@ -82,35 +114,10 @@ def calcular_tabla_alemana(
             "initial_balance": round(saldo, 4),
             "capital": capital,
             "interest": interes,
-            "indirect_charges": cobros,
+            "indirect_charges": cobros_dict,
             "total_payment": cuota_total,
             "final_balance": max(saldo_final, 0.0),
         })
         saldo = saldo_final
 
     return tabla
-
-
-def calcular_cobros_indirectos(monto: float, cobros: list) -> tuple[float, float]:
-    """
-    Retorna (cobros_mensuales, cobros_fijos).
-    Cobros con is_monthly=True y is_percentage=True → % del monto / 12.
-    Cobros con is_monthly=True y is_percentage=False → valor fijo mensual.
-    Cobros con is_monthly=False → cobro único en el primer período.
-    """
-    mensuales = 0.0
-    fijos = 0.0
-    for cobro in cobros:
-        if not cobro.is_active:
-            continue
-        if cobro.is_monthly:
-            if cobro.is_percentage:
-                mensuales += monto * cobro.value / 100 / 12
-            else:
-                mensuales += cobro.value
-        else:
-            if cobro.is_percentage:
-                fijos += monto * cobro.value / 100
-            else:
-                fijos += cobro.value
-    return round(mensuales, 4), round(fijos, 4)

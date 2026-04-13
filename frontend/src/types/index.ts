@@ -50,7 +50,7 @@ export interface AmortizationRow {
     initial_balance: number
     capital: number
     interest: number
-    indirect_charges: number
+    indirect_charges: Record<string, number>
     total_payment: number
     final_balance: number
 }
@@ -63,9 +63,11 @@ export interface AmortizationResult {
     nominal_rate: number
     monthly_rate: number
     schedule: AmortizationRow[]
+    charge_names: string[]
     total_capital: number
     total_interest: number
     total_charges: number
+    total_charges_details: Record<string, number>
     total_payment: number
     schedule_id?: number
 }

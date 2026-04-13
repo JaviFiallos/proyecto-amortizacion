@@ -85,7 +85,7 @@
                   <th>Saldo Inicial</th>
                   <th>Capital</th>
                   <th>Interés</th>
-                  <th>Cargos</th>
+                  <th v-for="name in result.charge_names" :key="name">{{ name }}</th>
                   <th>Cuota Total</th>
                   <th>Saldo Final</th>
                 </tr>
@@ -96,7 +96,9 @@
                   <td>${{ row.initial_balance.toLocaleString('es-EC', {minimumFractionDigits:2}) }}</td>
                   <td>${{ row.capital.toLocaleString('es-EC', {minimumFractionDigits:2}) }}</td>
                   <td>${{ row.interest.toLocaleString('es-EC', {minimumFractionDigits:2}) }}</td>
-                  <td>${{ row.indirect_charges.toLocaleString('es-EC', {minimumFractionDigits:2}) }}</td>
+                  <td v-for="name in result.charge_names" :key="name">
+                    ${{ (row.indirect_charges[name] || 0).toLocaleString('es-EC', {minimumFractionDigits:2}) }}
+                  </td>
                   <td style="font-weight:600;color:var(--primary-light)">
                     ${{ row.total_payment.toLocaleString('es-EC', {minimumFractionDigits:2}) }}
                   </td>
@@ -106,7 +108,9 @@
                   <td colspan="2">TOTALES</td>
                   <td>${{ result.total_capital.toLocaleString('es-EC', {minimumFractionDigits:2}) }}</td>
                   <td>${{ result.total_interest.toLocaleString('es-EC', {minimumFractionDigits:2}) }}</td>
-                  <td>${{ result.total_charges.toLocaleString('es-EC', {minimumFractionDigits:2}) }}</td>
+                  <td v-for="name in result.charge_names" :key="name">
+                    ${{ (result.total_charges_details[name] || 0).toLocaleString('es-EC', {minimumFractionDigits:2}) }}
+                  </td>
                   <td>${{ result.total_payment.toLocaleString('es-EC', {minimumFractionDigits:2}) }}</td>
                   <td>-</td>
                 </tr>

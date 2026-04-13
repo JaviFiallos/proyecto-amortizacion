@@ -7,7 +7,7 @@ from app.models.credit_type import CreditType
 from app.models.amortization import AmortizationSchedule
 from app.schemas.amortization import AmortizationRequest, AmortizationResponse, AmortizationRow
 from app.services.amortization import (
-    calcular_tabla_francesa, calcular_tabla_alemana, calcular_cobros_indirectos
+    calcular_tabla_francesa, calcular_tabla_alemana
 )
 from app.services.auth import get_current_user
 from app.models.user import User
@@ -25,7 +25,13 @@ def _build_response(
 ) -> AmortizationResponse:
     total_capital = round(sum(r["capital"] for r in tabla), 2)
     total_interest = round(sum(r["interest"] for r in tabla), 2)
-    total_charges = round(sum(r["indirect_charges"] for r in tabla), 2)
+
+    charge_names = list(tabla[0]["indirect_charges"].keys()) if tabla else []
+    total_charges_details = {
+        name: round(sum(r["indirect_charges"].get(name, 0.0) for r in tabla), 2)
+        for name in charge_names
+    }
+    total_charges = round(sum(sum(r["indirect_charges"].values()) for r in tabla), 2)
     total_payment = round(sum(r["total_payment"] for r in tabla), 2)
 
     return AmortizationResponse(
@@ -36,9 +42,11 @@ def _build_response(
         nominal_rate=ct.nominal_rate,
         monthly_rate=round(ct.nominal_rate / 12, 6),
         schedule=[AmortizationRow(**r) for r in tabla],
+        charge_names=charge_names,
         total_capital=total_capital,
         total_interest=total_interest,
         total_charges=total_charges,
+        total_charges_details=total_charges_details,
         total_payment=total_payment,
         schedule_id=schedule_id,
     )
@@ -54,20 +62,16 @@ def calculate_amortization(
     if not ct:
         raise HTTPException(status_code=404, detail="Tipo de crédito no encontrado")
 
-    cobros_mensuales, cobros_fijos = calcular_cobros_indirectos(data.amount, ct.indirect_charges)
-
     if data.system == "frances":
-        tabla = calcular_tabla_francesa(data.amount, ct.nominal_rate, data.term_months,
-                                        cobros_mensuales, cobros_fijos)
+        tabla = calcular_tabla_francesa(data.amount, ct.nominal_rate, data.term_months, list(ct.indirect_charges))
     elif data.system == "aleman":
-        tabla = calcular_tabla_alemana(data.amount, ct.nominal_rate, data.term_months,
-                                       cobros_mensuales, cobros_fijos)
+        tabla = calcular_tabla_alemana(data.amount, ct.nominal_rate, data.term_months, list(ct.indirect_charges))
     else:
         raise HTTPException(status_code=400, detail="Sistema inválido. Use 'frances' o 'aleman'")
 
     total_capital = round(sum(r["capital"] for r in tabla), 2)
     total_interest = round(sum(r["interest"] for r in tabla), 2)
-    total_charges = round(sum(r["indirect_charges"] for r in tabla), 2)
+    total_charges = round(sum(sum(r["indirect_charges"].values()) for r in tabla), 2)
     total_payment = round(sum(r["total_payment"] for r in tabla), 2)
 
     # Persistir en BD
@@ -100,14 +104,10 @@ def preview_amortization(
     if not ct:
         raise HTTPException(status_code=404, detail="Tipo de crédito no encontrado")
 
-    cobros_mensuales, cobros_fijos = calcular_cobros_indirectos(data.amount, ct.indirect_charges)
-
     if data.system == "frances":
-        tabla = calcular_tabla_francesa(data.amount, ct.nominal_rate, data.term_months,
-                                        cobros_mensuales, cobros_fijos)
+        tabla = calcular_tabla_francesa(data.amount, ct.nominal_rate, data.term_months, list(ct.indirect_charges))
     elif data.system == "aleman":
-        tabla = calcular_tabla_alemana(data.amount, ct.nominal_rate, data.term_months,
-                                       cobros_mensuales, cobros_fijos)
+        tabla = calcular_tabla_alemana(data.amount, ct.nominal_rate, data.term_months, list(ct.indirect_charges))
     else:
         raise HTTPException(status_code=400, detail="Sistema inválido. Use 'frances' o 'aleman'")
 
@@ -143,7 +143,8 @@ def download_pdf(
         client_name=current_user.name,
         total_capital=schedule.amount,
         total_interest=schedule.total_interest,
-        total_charges=schedule.total_charges,
+        charge_names=list(schedule.schedule_data[0]["indirect_charges"].keys()) if schedule.schedule_data and type(schedule.schedule_data[0].get("indirect_charges")) is dict else [],
+        total_charges_details={name: round(sum(r["indirect_charges"].get(name, 0.0) for r in schedule.schedule_data), 2) for name in (list(schedule.schedule_data[0]["indirect_charges"].keys()) if schedule.schedule_data and type(schedule.schedule_data[0].get("indirect_charges")) is dict else [])},
         total_payment=schedule.total_payment,
     )
 
