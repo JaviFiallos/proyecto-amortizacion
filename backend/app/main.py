@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
-from app.routers import auth, institution, credits, amortization, investments
+from app.routers import auth, institution, credits, amortization, investments, kyc
 
 app = FastAPI(
     title="Simulador de Amortización e Inversiones",
@@ -33,6 +33,7 @@ app.include_router(institution.router)
 app.include_router(credits.router)
 app.include_router(amortization.router)
 app.include_router(investments.router)
+app.include_router(kyc.router)
 
 
 @app.get("/api/health")

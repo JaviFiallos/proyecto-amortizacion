@@ -46,6 +46,7 @@ const router = createRouter({
         { path: 'amortization', name: 'client-amortization', component: () => import('@/views/client/AmortizationView.vue') },
         { path: 'investment', name: 'client-investment', component: () => import('@/views/client/InvestmentView.vue') },
         { path: 'investment/apply', name: 'client-invest-apply', component: () => import('@/views/client/InvestmentApplyView.vue') },
+        { path: 'profile', name: 'client-profile', component: () => import('@/views/client/ProfileView.vue') },
       ],
     },
 

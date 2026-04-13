@@ -70,3 +70,14 @@ export const investmentApi = {
         })
     },
 }
+
+export const kycApi = {
+    enroll: (idCardFile: File, selfieBlob: Blob) => {
+        const form = new FormData()
+        form.append('id_card', idCardFile, 'cedula.jpg')
+        form.append('selfie', selfieBlob, 'selfie.jpg')
+        return api.post('/api/kyc/enroll', form, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        })
+    },
+}

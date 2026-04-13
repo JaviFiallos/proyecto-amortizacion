@@ -30,5 +30,13 @@ export const useAuthStore = defineStore('auth', () => {
         localStorage.removeItem('user')
     }
 
-    return { user, token, isAuthenticated, isAdmin, isClient, login, register, logout }
+    async function refreshUser() {
+        try {
+            const { data } = await authApi.me()
+            user.value = data
+            localStorage.setItem('user', JSON.stringify(data))
+        } catch { /* silently fail */ }
+    }
+
+    return { user, token, isAuthenticated, isAdmin, isClient, login, register, logout, refreshUser }
 })

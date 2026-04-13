@@ -19,6 +19,7 @@ class UserOut(BaseModel):
     is_active: bool
     cedula: Optional[str] = None
     phone: Optional[str] = None
+    is_kyc_verified: bool = False
 
     class Config:
         from_attributes = True

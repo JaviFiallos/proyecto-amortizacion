@@ -6,6 +6,7 @@ export interface User {
     is_active: boolean
     cedula?: string
     phone?: string
+    is_kyc_verified?: boolean
 }
 
 export interface Institution {

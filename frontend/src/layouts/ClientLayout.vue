@@ -29,6 +29,11 @@
         <el-menu-item index="/client/investment/apply">
           <el-icon><Document /></el-icon> Invertir en Línea
         </el-menu-item>
+        <el-menu-item index="/client/profile">
+          <el-icon><UserFilled /></el-icon>
+          Mi Perfil
+          <el-badge v-if="!authStore.user?.is_kyc_verified" value="!" type="danger" style="margin-left:6px" />
+        </el-menu-item>
       </el-menu>
 
       <div class="nav-user">
@@ -61,7 +66,7 @@ import { computed } from 'vue'
 import { useRoute, useRouter, RouterView } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useInstitutionStore } from '@/stores/institution'
-import { SwitchButton } from '@element-plus/icons-vue'
+import { SwitchButton, UserFilled } from '@element-plus/icons-vue'
 
 const authStore = useAuthStore()
 const institutionStore = useInstitutionStore()

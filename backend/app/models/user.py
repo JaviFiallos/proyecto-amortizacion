@@ -14,6 +14,8 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     cedula = Column(String(20), nullable=True)
     phone = Column(String(50), nullable=True)
+    is_kyc_verified = Column(Boolean, default=False)
+    kyc_baseline_path = Column(String(255), nullable=True)
 
     amortization_schedules = relationship("AmortizationSchedule", back_populates="user")
     investment_simulations = relationship("InvestmentSimulation", back_populates="user")

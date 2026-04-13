@@ -18,6 +18,8 @@ from app.models.institution import Institution
 from app.config import settings
 from app.utils.pdf_generator import generar_pdf_inversion
 
+from app.utils.face_utils import compare_faces as _compare_faces
+
 router = APIRouter(prefix="/api/investments", tags=["investments"])
 
 
@@ -265,11 +267,35 @@ async def save_biometric(
                           file_path=file_path, original_filename="selfie.jpg")
         db.add(doc)
 
+    if not current_user.is_kyc_verified or not current_user.kyc_baseline_path:
+        raise HTTPException(
+            status_code=403,
+            detail="El usuario no ha completado el enrolamiento KYC. Ve a Mi Perfil y verifica tu identidad primero."
+        )
+
+    try:
+        result = _compare_faces(current_user.kyc_baseline_path, file_path)
+        if not result["verified"]:
+            raise HTTPException(
+                status_code=401,
+                detail=(
+                    f"Validación biométrica fallida. "
+                    f"El rostro capturado no coincide con el registrado "
+                    f"(similitud: {result['similarity']}%)."
+                )
+            )
+    except HTTPException:
+        raise
+    except (ValueError, IOError) as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error en la verificación facial: {str(e)}")
+
     app.biometric_status = "verificado"
     app.status = "biometria_verificada"
     db.commit()
 
-    return {"message": "Validación biométrica completada", "status": "verificado"}
+    return {"message": "Validación biométrica mediante IA completada", "status": "verificado"}
 
 
 # ──────── PDF ────────

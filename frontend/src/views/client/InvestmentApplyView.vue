@@ -103,25 +103,46 @@
 
       <!-- PASO 2: Validación Biométrica (Webcam) -->
       <div v-show="activeStep === 2" class="step-content">
-        <h3 class="step-title">Validación Biométrica</h3>
-        <p class="step-subtitle">Para tu seguridad, necesitamos una foto de tu rostro. Por favor, mira a la cámara y asegúrate de tener buena iluminación.</p>
-        
-        <div class="camera-container">
-          <video v-show="!photo" ref="videoRef" autoplay playsinline class="webcam-video"></video>
-          <canvas ref="canvasRef" style="display:none;"></canvas>
-          <img v-if="photo" :src="photo" class="webcam-photo" />
+        <h3 class="step-title">Validación Biométrica con IA</h3>
 
-          <div class="camera-controls">
-            <el-button v-if="!cameraActive && !photo" type="primary" @click="initCamera">Activar Cámara</el-button>
-            <el-button v-if="cameraActive && !photo" type="success" :icon="Camera" size="large" @click="takePhoto" circle></el-button>
-            <el-button v-if="photo" type="warning" @click="retakePhoto">Tomar de nuevo</el-button>
-          </div>
+        <!-- Si aun NO tiene KYC completo -->
+        <div v-if="!authStore.user?.is_kyc_verified" class="kyc-gate">
+          <el-result
+            icon="warning"
+            title="Verificación de Identidad Requerida"
+            sub-title="Para continuar con tu inversión debes verificar tu identidad primero. Esto solo lo haces una vez."
+          >
+            <template #extra>
+              <el-button type="primary" size="large" @click="$router.push('/client/profile')">
+                Ir a Verificar mi Identidad →
+              </el-button>
+              <el-button @click="activeStep--">Regresar</el-button>
+            </template>
+          </el-result>
         </div>
 
-        <div class="step-actions">
-           <el-button type="primary" size="large" :loading="loading" :disabled="!photo" @click="submitBiometric">
-            Validar Identidad y Finalizar <el-icon class="el-icon--right"><Check /></el-icon>
-          </el-button>
+        <!-- Si YA tiene KYC: tomar selfie de confirmación -->
+        <div v-else>
+          <p class="step-subtitle">
+            ✅ Identidad verificada. Por seguridad, toma una última foto para confirmar que eres tú quien realiza esta transacción.
+          </p>
+          <div class="camera-container">
+            <video v-show="!photo" ref="videoRef" autoplay playsinline class="webcam-video"></video>
+            <canvas ref="canvasRef" style="display:none;"></canvas>
+            <img v-if="photo" :src="photo" class="webcam-photo" />
+
+            <div class="camera-controls">
+              <el-button v-if="!cameraActive && !photo" type="primary" @click="initCamera">Activar Cámara</el-button>
+              <el-button v-if="cameraActive && !photo" type="success" :icon="Camera" size="large" @click="takePhoto" circle></el-button>
+              <el-button v-if="photo" type="warning" @click="retakePhoto">Tomar de nuevo</el-button>
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <el-button type="primary" size="large" :loading="loading" :disabled="!photo" @click="submitBiometric">
+              Validar Identidad y Finalizar <el-icon class="el-icon--right"><Check /></el-icon>
+            </el-button>
+          </div>
         </div>
       </div>
 
@@ -147,9 +168,11 @@ import { ref, reactive, onMounted, computed, onUnmounted } from 'vue'
 import { investmentApi } from '@/api'
 import { useToast } from 'vue-toastification'
 import { ArrowRight, UploadFilled, Camera, Check } from '@element-plus/icons-vue'
+import { useAuthStore } from '@/stores/auth'
 import type { InvestmentType } from '@/types'
 
 const toast = useToast()
+const authStore = useAuthStore()
 const activeStep = ref(0)
 const loading = ref(false)
 
@@ -299,4 +322,6 @@ async function submitBiometric() {
 .camera-controls { position: absolute; bottom: 24px; left: 0; right: 0; display: flex; justify-content: center; z-index: 10; }
 
 .success-step { text-align: center; padding: 40px 0; }
+
+.kyc-gate { padding: 20px 0; }
 </style>
