@@ -16,11 +16,21 @@ env/
 # Env files (contienen contraseñas — NO subir)
 .env
 *.env.local
+.env.*.local
+
+# Databases locales (por si decides usar sqlite localmente para pruebas)
+*.sqlite3
+*.db
+
+# Test y coverage
+.pytest_cache/
+.coverage
+htmlcov/
 
 # Uploads generados en runtime
 backend/uploads/
 
-# Alembic generated versions (keep the folder, ignore compiled)
+# Alembic generated versions
 # backend/alembic/versions/*.pyc
 
 # Node / Vue
@@ -29,7 +39,7 @@ dist/
 .vite/
 
 # IDE
-.vscode/settings.json
+.vscode/
 .idea/
 *.swp
 *.swo
