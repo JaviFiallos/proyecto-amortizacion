@@ -64,7 +64,7 @@
                 drag
                 action=""
                 :auto-upload="false"
-                :on-change="(file) => handleDocChange(file, 'cedula')"
+                :on-change="($event: any) => handleDocChange($event, 'cedula')"
                 :limit="1"
               >
                 <el-icon class="el-icon--upload"><UploadFilled /></el-icon>
@@ -82,7 +82,7 @@
                 drag
                 action=""
                 :auto-upload="false"
-                :on-change="(file) => handleDocChange(file, 'planilla')"
+                :on-change="($event: any) => handleDocChange($event, 'planilla')"
                 :limit="1"
               >
                 <el-icon class="el-icon--upload"><UploadFilled /></el-icon>
@@ -198,7 +198,7 @@ onMounted(async () => {
   try {
     const { data } = await investmentApi.listTypes()
     types.value = data.filter((t: InvestmentType) => t.is_active)
-    if (types.value.length > 0) form.investment_type_id = types.value[0].id
+    if (types.value.length > 0) form.investment_type_id = types.value[0]!.id
   } catch { toast.error('Error al cargar tipos de inversión') }
 })
 

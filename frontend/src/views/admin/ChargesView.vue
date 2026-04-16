@@ -122,7 +122,7 @@ async function load() {
   try {
     creditTypes.value = (await creditApi.listTypes()).data
     charges.value = (await creditApi.listCharges(selectedTypeId.value)).data
-    if (!form.credit_type_id && creditTypes.value.length) form.credit_type_id = creditTypes.value[0].id
+    if (!form.credit_type_id && creditTypes.value.length) form.credit_type_id = creditTypes.value[0]!.id
   } finally { loading.value = false }
 }
 onMounted(load)

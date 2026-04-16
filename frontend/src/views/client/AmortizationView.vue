@@ -150,7 +150,7 @@ onMounted(async () => {
     const { data } = await creditApi.listTypes()
     creditTypes.value = data.filter((t: CreditType) => t.is_active)
     if (creditTypes.value.length > 0) {
-      form.credit_type_id = creditTypes.value[0].id
+      form.credit_type_id = creditTypes.value[0]!.id
     }
   } catch {
     toast.error('Error al cargar tipos de crédito')

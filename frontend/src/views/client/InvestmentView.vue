@@ -117,7 +117,7 @@ onMounted(async () => {
   try {
     const { data } = await investmentApi.listTypes()
     types.value = data.filter((t: InvestmentType) => t.is_active)
-    if (types.value.length > 0) form.investment_type_id = types.value[0].id
+    if (types.value.length > 0) form.investment_type_id = types.value[0]!.id
   } catch {
     toast.error('Error al cargar tipos de inversión')
   }
